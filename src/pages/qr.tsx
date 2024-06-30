@@ -65,6 +65,9 @@ const QrCheckPage: React.FC<QrCheckPageProps> = ({}) => {
     return (
         <>
             <NormalHeader/>
+            <br />
+            <br />
+            
             <div>
                 {showQr && qrValue ? (
                     <>

@@ -81,6 +81,8 @@ const MealtablePage: React.FC<MealtablePageProps> = () => {
     return (
         <>
             <NormalHeader />
+            <br />
+            <br />
             <table>
                 <tbody>
                     {Mealtable.map((item, index) => (

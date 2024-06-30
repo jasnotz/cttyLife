@@ -100,6 +100,8 @@ const TimetablePage: React.FC<TimetablePageProps> = () => {
     return (
         <>
             <NormalHeader />
+            <br />
+            <br />
             <table>
                 <tbody>
                     {timetable.map((item, index) => (

@@ -1,0 +1,56 @@
+.dropdownspace {
+    position: fixed;
+    left: 0px;
+    top: 43px;
+    background-color: rgba(51,51,51);
+    backdrop-filter: blur(2rem);
+    z-index: 15000 !important;
+    opacity: 0;
+    transform: translateY(-95%);
+}
+
+.dropdownspace .dropdown-content {
+    position: absolute;
+    text-align: left;
+}
+
+.dropdown-content {
+    z-index: 2000;
+    position: relative;
+}
+
+.dropdownspace.fadeIn {
+    animation: fadeInSlideDown 0.4s forwards;
+}
+
+.dropdownspace.fadeOut {
+    animation: fadeOutSlideUp 0.7s forwards;
+}
+
+.grow {
+    width: 1500%;
+    height: 20.4rem;
+}
+
+.blurpageyes {
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.4);
+    top: 44px;
+    z-index: 1;
+    height: 2000%;
+}
+
+@keyframes fadeInSlideDown {
+    0% { transform: translateY(-100%); opacity: 1; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOutSlideUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-150%); opacity: 1; }
+}
+@media (max-width: 768px) {
+    .dropdownspace {
+      display: none;
+    }
+  }
