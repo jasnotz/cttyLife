@@ -7,8 +7,8 @@ export interface ModalSpaceProps {
     btnCount: number,
     btnMsg: string,
     whatonClick: () => void,
-    modalActive: boolean, // Added this line
-    setModalActive: (active: boolean) => void // Added this line
+    modalActive: boolean,
+    setModalActive: (active: boolean) => void
 }
 
 export const ModalSpace: React.FC<ModalSpaceProps> = ({ title, message, btnCount, whatonClick, modalActive, setModalActive,btnMsg }) => {

@@ -59,7 +59,7 @@ const BigHeader: React.FC<HeaderProps> = ({}) => {
   };
 
   const NavItem: React.FC<NavItemProps> = ({ id, href, label, handleMouseOver }) => (
-    <li id={id} onMouseOver={() => handleMouseOver(id)} onClick={() => { if (id !== '급식증' && id !== '홈' && id !== '시간표' && id !== '급식표') {setModalActive(true); setIsFadingOut(false); setWideHeaderVisible(true)} }}>
+    <li id={id} onMouseOver={() => handleMouseOver(id)} onClick={() => { if (id !== '급식증' && id !== '홈' && id !== '일정' && id !== '급식표') {setModalActive(true); setIsFadingOut(false); setWideHeaderVisible(true)} }}>
       <a href={href} className="nav-link">{label}</a>
     </li>
   );
@@ -67,7 +67,7 @@ const BigHeader: React.FC<HeaderProps> = ({}) => {
   const navItems = [
     { id: '급식증', href: '/qr', label: '급식증' },
     { id: '홈', href: '/', label: '홈' },
-    { id: '시간표', href: '/time', label: '시간표' },
+    { id: '일정', href: '/time', label: '일정' },
     { id: '급식표', href: '/meal', label: '급식표' },
     { id: '메세지', href: '#', label: '메세지' },
     { id: '프로필', href: '#', label: '프로필' },

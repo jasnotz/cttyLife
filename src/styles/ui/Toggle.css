@@ -1,0 +1,26 @@
+.toggle-container {
+    display: flex;
+    border-radius: 20px;
+    background-color: #f0f0f5;
+    width: 270px;
+    overflow: hidden;
+    position: relative;
+    padding: 5px;
+}
+
+.toggle-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    flex: 1;
+    text-align: center;
+    transition: background-color 0.3s;
+    z-index: 1; /* Ensure toggle items are above the container background */
+}
+
+.toggle-item.active {
+    background-color: white;
+    font-weight: bold;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    z-index: 2; /* Ensure the active item is above the other items */
+}

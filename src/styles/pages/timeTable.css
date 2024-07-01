@@ -1,0 +1,9 @@
+.table-container table {
+    margin: 0 auto; /* Center table horizontally */
+    border-collapse: collapse; /* Collapse borders */
+}
+
+thead {
+    border-bottom: 1px solid #ddd; /* Add bottom border to thead */
+}
+

@@ -47,7 +47,9 @@ const MainPage: React.FC<MainPageProps> = () => {
             <NormalHeader />
             <br />
             <br />
-            <h1>{`${userInfo}`}</h1>
+            <div>
+                <h1>{`${userInfo}`}</h1>
+            </div>
             <button onClick={handleLogout}>Logout</button>
         </>
     );

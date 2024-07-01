@@ -67,18 +67,24 @@ const QrCheckPage: React.FC<QrCheckPageProps> = ({}) => {
             <NormalHeader/>
             <br />
             <br />
-            
-            <div>
+            <br />
+            <br />
+            <br />
+            <br />
+            <div style={{ display:"flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
                 {showQr && qrValue ? (
                     <>
                         <QRCode value={qrValue} />
-                        <p>{userName}</p>
-                        <p>QR code will expire in: {timeLeft} seconds</p>
+                        <p style={{ fontWeight:"bold" }}>{userName}</p>
+                        <div style={{ width:"10%", backgroundColor: "white", borderRadius:"5px", margin:"10px 0" }}>
+                            <div style={{  height:"20px", backgroundColor:"#868e96", borderRadius:"5px", transition:"width 1s ease-in-out" ,width: `${(timeLeft / 60) * 100}%` }}></div>
+                        </div>
+                        <p style={{ display:"none" }}>QR code will expire in: {timeLeft} seconds</p>
                     </>
                 ) : (
                     <>
-                        <p>QR code has expired.</p>
-                        <button onClick={regenerateQrCode}>Re-generate</button>
+                        <p>QR코드가 만료되었습니다</p>
+                        <button onClick={regenerateQrCode}>재생성</button>
                     </>
                 )}
             </div>

@@ -22,8 +22,8 @@ export const DropDownSpace: React.FC<DropDownSpaceProps> = ({ activeItem, isFadi
                 return <div>급식증 Content</div>;
             case '홈':
                 return <div>홈 Content</div>;
-            case '시간표':
-                return <div>시간표 Content</div>;
+            case '일정':
+                return <div>일정 Content</div>;
             case '급식표':
                 return <div>급식표 Content</div>;
             case '메세지':

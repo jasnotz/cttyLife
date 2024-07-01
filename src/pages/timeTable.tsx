@@ -3,6 +3,9 @@ import axios from "axios";
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import Cookies from 'js-cookie';
 import NormalHeader from "../ui/header/normalHeader";
+import Toggle from '../ui/Toggle';
+import PlanPage from './plan';
+import "../styles/pages/timeTable.css"
 
 export interface TimetablePageProps {}
 
@@ -31,6 +34,8 @@ const TimetablePage: React.FC<TimetablePageProps> = () => {
     const [weekdays, setWeekdays] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [today, setToday] = useState<string>('');
+    const [currentView, setCurrentView] = useState<string>('timetable');
 
     useEffect(() => {
         const fetchTimetable = async () => {
@@ -58,21 +63,24 @@ const TimetablePage: React.FC<TimetablePageProps> = () => {
 
                 const currentDate = new Date();
                 const day = currentDate.getDay();
-                const diffToMonday = currentDate.getDate() - day + (day === 0 ? -6 : 1); // Calculate Monday
-                const diffToFriday = diffToMonday + 4; // Calculate Friday
+                const diffToMonday = currentDate.getDate() - day + (day === 0 ? -6 : 1);
+                const diffToFriday = diffToMonday + 4;
 
                 const monday = new Date(currentDate.setDate(diffToMonday)).toISOString().split('T')[0].replace(/-/g, '');
                 const friday = new Date(currentDate.setDate(diffToFriday)).toISOString().split('T')[0].replace(/-/g, '');
+                const todayFormatted = new Date().toISOString().split('T')[0].replace(/-/g, '');
+
+                setToday(todayFormatted);
 
                 const params: ApiParams = {
-                    ATPT_OFCDC_SC_CODE: "J10", // 교육청 코드
-                    SD_SCHUL_CODE: "7531292", // 학교 코드
-                    AY: "2024", // 학년도
-                    SEM: "1", // 학기
-                    GRADE: grade, // 학년
-                    CLASS_NM: classNm, // 학급명
-                    TI_FROM_YMD: monday, // 시간표 시작 일자
-                    TI_TO_YMD: friday, // 시간표 종료 일자
+                    ATPT_OFCDC_SC_CODE: "J10",
+                    SD_SCHUL_CODE: "7531292",
+                    AY: "2024",
+                    SEM: "1",
+                    GRADE: grade,
+                    CLASS_NM: classNm,
+                    TI_FROM_YMD: monday,
+                    TI_TO_YMD: friday,
                 };
 
                 const response = await axios.get("https://open.neis.go.kr/hub/hisTimetable", {
@@ -82,9 +90,8 @@ const TimetablePage: React.FC<TimetablePageProps> = () => {
                         Type: "json"
                     },
                 });
-                const data: TimetableData[] = response.data.hisTimetable[1].row; // API 응답 구조에 따라 수정
+                const data: TimetableData[] = response.data.hisTimetable[1].row;
 
-                // 과목명 축약 변환
                 const shortenedData = data.map(item => ({
                     ...item,
                     ITRT_CNTNT: item.ITRT_CNTNT
@@ -102,8 +109,7 @@ const TimetablePage: React.FC<TimetablePageProps> = () => {
                         .replace("중국어Ⅰ", "중어Ⅰ")
                 }));
                 setTimetable(shortenedData);
-                
-                // 중복되지 않는 날짜 배열 생성
+
                 const uniqueDates = Array.from(new Set(shortenedData.map((item) => item.ALL_TI_YMD)));
                 setWeekdays(uniqueDates);
 
@@ -128,44 +134,77 @@ const TimetablePage: React.FC<TimetablePageProps> = () => {
         return acc;
     }, {} as { [key: string]: TimetableData[] });
 
+    const getActivePeriod = () => {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinutes = now.getMinutes();
+
+        if (currentHour < 9 || (currentHour === 9 && currentMinutes < 50)) return 0;
+        if (currentHour === 9 && currentMinutes >= 50) return 1;
+        if (currentHour === 10 && currentMinutes < 50) return 1;
+        if (currentHour === 10 && currentMinutes >= 50) return 2;
+        if (currentHour === 11 && currentMinutes < 50) return 2;
+        if (currentHour === 11 && currentMinutes >= 50) return 3;
+        if (currentHour === 12 && currentMinutes < 50) return 3;
+        if (currentHour === 12 && currentMinutes >= 50) return 4;
+        if (currentHour === 13 || (currentHour === 14 && currentMinutes < 40)) return 4;
+        if (currentHour === 14 && currentMinutes >= 40) return 5;
+        if (currentHour === 15 && currentMinutes < 40) return 5;
+        if (currentHour === 15 && currentMinutes >= 40) return 6;
+        if (currentHour >= 16) return 6;
+
+        return 0;
+    };
+
+    const activePeriod = getActivePeriod();
+
     return (
-        <>
+        <div style={{ backgroundColor: "white", minHeight: "100vh" }}>
             <NormalHeader />
             <br />
             <br />
             <br />
+            <div style={{ display: "flex", justifyContent: "center", margin: "20px 0" }}>
+                <Toggle currentView={currentView} onToggle={setCurrentView} />
+            </div>
             <br />
-            <br />
-            
-            <br />
-            <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-                <table>
-                    <thead>
-                        <tr>
-                            {weekdays.map((date, index) => (
-                                <th key={index}>{new Date(date.slice(0, 4) + '-' + date.slice(4, 6) + '-' + date.slice(6, 8)).toLocaleDateString('ko-KR', { weekday: 'long' })}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {[...Array(7)].map((_, periodIndex) => (
-                            <tr key={periodIndex}>
-                                {weekdays.map((date, dayIndex) => (
-                                    <td key={dayIndex} style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>
-                                        {groupedByDate[date]?.[periodIndex] ? (
-                                            <>
-                                                {groupedByDate[date][periodIndex].PERIO}교시<br />
-                                                {groupedByDate[date][periodIndex].ITRT_CNTNT}
-                                            </>
-                                        ) : null}
-                                    </td>
+            {currentView === 'timetable' ? (
+                <div className="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                {weekdays.map((date, index) => (
+                                    <th key={index} style={{ paddingBottom: "25px" }}>{new Date(date.slice(0, 4) + '-' + date.slice(4, 6) + '-' + date.slice(6, 8)).toLocaleDateString('ko-KR', { weekday: 'long' })}</th>
                                 ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </>
+                        </thead>
+                        <tbody>
+                            {[...Array(7)].map((_, periodIndex) => (
+                                <tr key={periodIndex}>
+                                    {weekdays.map((date, dayIndex) => (
+                                        <td
+                                            key={dayIndex}
+                                            className={`${date === today ? 'today' : ''} ${periodIndex === activePeriod ? 'active-period' : ''}`}
+                                            style={{ padding: "20px", textAlign: "center" }}
+                                        >
+                                            {groupedByDate[date]?.[periodIndex] ? (
+                                                <>
+                                                    <span style={{ fontWeight: date === today ? "bold" : "normal" }}>
+                                                        {groupedByDate[date][periodIndex].ITRT_CNTNT}
+                                                    </span>
+                                                </>
+                                            ) : null}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <PlanPage />
+            )}
+        </div>
     );
 };
 
