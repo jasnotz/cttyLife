@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import NormalHeader from "../ui/header/normalHeader";
 import "../styles/pages/timeTable.css";
 
-export interface TimetablePageProps {}
+export interface PlanPageProps {}
 
 interface ApiParams {
     ATPT_OFCDC_SC_CODE: string;
@@ -22,7 +22,7 @@ interface EventData {
     THREE_GRADE_EVENT_YN?: string;
 }
 
-const TimetablePage: React.FC<TimetablePageProps> = () => {
+const PlanPage: React.FC<PlanPageProps> = () => {
     const [events, setEvents] = useState<EventData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -108,4 +108,4 @@ const TimetablePage: React.FC<TimetablePageProps> = () => {
     );
 };
 
-export default TimetablePage;
+export default PlanPage;
