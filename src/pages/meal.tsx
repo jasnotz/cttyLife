@@ -5,6 +5,7 @@ import NormalHeader from "../ui/header/normalHeader";
 export interface MealtablePageProps {}
 
 interface MealtableData {
+    MLSV_YMD: string;
     MMEAL_SC_NM: string;
     DDISH_NM: string;
 }
@@ -75,7 +76,25 @@ const MealtablePage: React.FC<MealtablePageProps> = () => {
     if (error) return <div>{error}</div>;
 
     const formatMealtable = (ddishNm: string): string => {
-        return ddishNm.replace(/<br\/>/g, ', ').replace(/\([^)]*\)/g, '');
+        const cleanedDdishNm = ddishNm.replace(/<br\/>/g, ', ').replace(/\([^)]*\)/g, '');
+
+        const items = cleanedDdishNm.split(', ');
+
+        const groupedItems = [];
+        for (let i = 0; i < items.length; i += 2) {
+            if (i + 1 < items.length) {
+                groupedItems.push(`${items[i]}, ${items[i + 1]}`);
+            } else {
+                groupedItems.push(items[i]);
+            }
+        }
+        return groupedItems.join('<br/>');
+    };
+
+    const getDayOfWeek = (dateString: string): string => {
+        const daysOfWeek = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+        const date = new Date(dateString.substring(0, 4) + '-' + dateString.substring(4, 6) + '-' + dateString.substring(6, 8));
+        return daysOfWeek[date.getDay()];
     };
 
     return (
@@ -83,11 +102,19 @@ const MealtablePage: React.FC<MealtablePageProps> = () => {
             <NormalHeader />
             <br />
             <br />
-            <table>
+            <br />
+            <br />
+            <br />
+            <table style={{ margin: "0 auto", textAlign: "left", tableLayout: "fixed" }}>
                 <tbody>
                     {Mealtable.map((item, index) => (
-                        <tr key={index}>
-                            <td>{formatMealtable(item.DDISH_NM)}</td>
+                        <tr key={index} style={{ borderBottom: "1px solid #ddd", paddingBottom: "10px" }}>
+                            <td>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontWeight: "bold" }}>{getDayOfWeek(item.MLSV_YMD)}</span>
+                                </div>
+                                <div dangerouslySetInnerHTML={{ __html: formatMealtable(item.DDISH_NM) }} style={{ paddingTop: "5px", borderBottom: "1px solid #ddd" }}></div>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

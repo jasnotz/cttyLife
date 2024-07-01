@@ -15,7 +15,6 @@ interface TimetableData {
     ALL_TI_YMD: string;
 }
 
-// 추가: API 호출에 사용할 파라미터 인터페이스 정의
 interface ApiParams {
     ATPT_OFCDC_SC_CODE: string;
     SD_SCHUL_CODE: string;
@@ -29,6 +28,7 @@ interface ApiParams {
 
 const TimetablePage: React.FC<TimetablePageProps> = () => {
     const [timetable, setTimetable] = useState<TimetableData[]>([]);
+    const [weekdays, setWeekdays] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -82,8 +82,31 @@ const TimetablePage: React.FC<TimetablePageProps> = () => {
                         Type: "json"
                     },
                 });
-                const data = response.data.hisTimetable[1].row; // API 응답 구조에 따라 수정
-                setTimetable(data);
+                const data: TimetableData[] = response.data.hisTimetable[1].row; // API 응답 구조에 따라 수정
+
+                // 과목명 축약 변환
+                const shortenedData = data.map(item => ({
+                    ...item,
+                    ITRT_CNTNT: item.ITRT_CNTNT
+                        .replace("확률과 통계", "확통")
+                        .replace("생명과학Ⅰ", "생과I")
+                        .replace("지구과학Ⅰ", "지과I")
+                        .replace("물리학Ⅰ", "물리I")
+                        .replace("운동과 건강", "체육")
+                        .replace("진로활동", "진로")
+                        .replace("생활과 윤리", "생윤")
+                        .replace("한국지리", "한지")
+                        .replace("자율활동", "창체")
+                        .replace("미술 창작", "미술")
+                        .replace("일본어Ⅰ", "일어Ⅰ")
+                        .replace("중국어Ⅰ", "중어Ⅰ")
+                }));
+                setTimetable(shortenedData);
+                
+                // 중복되지 않는 날짜 배열 생성
+                const uniqueDates = Array.from(new Set(shortenedData.map((item) => item.ALL_TI_YMD)));
+                setWeekdays(uniqueDates);
+
                 setLoading(false);
             } catch (err) {
                 setError("데이터를 불러오는데 실패했습니다.");
@@ -97,24 +120,51 @@ const TimetablePage: React.FC<TimetablePageProps> = () => {
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
+    const groupedByDate: { [key: string]: TimetableData[] } = timetable.reduce((acc, item) => {
+        if (!acc[item.ALL_TI_YMD]) {
+            acc[item.ALL_TI_YMD] = [];
+        }
+        acc[item.ALL_TI_YMD].push(item);
+        return acc;
+    }, {} as { [key: string]: TimetableData[] });
+
     return (
         <>
             <NormalHeader />
             <br />
             <br />
-            <table>
-                <tbody>
-                    {timetable.map((item, index) => (
-                        <tr key={index}>
-                            <td>{item.GRADE}학년</td>
-                            <td>{item.CLASS_NM}반</td>
-                            <td>{item.PERIO}교시</td>
-                            <td>{item.ITRT_CNTNT}</td>
-                            <td>{item.ALL_TI_YMD}</td>
+            <br />
+            <br />
+            <br />
+            
+            <br />
+            <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                <table>
+                    <thead>
+                        <tr>
+                            {weekdays.map((date, index) => (
+                                <th key={index}>{new Date(date.slice(0, 4) + '-' + date.slice(4, 6) + '-' + date.slice(6, 8)).toLocaleDateString('ko-KR', { weekday: 'long' })}</th>
+                            ))}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {[...Array(7)].map((_, periodIndex) => (
+                            <tr key={periodIndex}>
+                                {weekdays.map((date, dayIndex) => (
+                                    <td key={dayIndex} style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>
+                                        {groupedByDate[date]?.[periodIndex] ? (
+                                            <>
+                                                {groupedByDate[date][periodIndex].PERIO}교시<br />
+                                                {groupedByDate[date][periodIndex].ITRT_CNTNT}
+                                            </>
+                                        ) : null}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </>
     );
 };
