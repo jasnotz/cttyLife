@@ -34,7 +34,7 @@ const PlanPage: React.FC<PlanPageProps> = () => {
                 const db = getFirestore();
                 const userCookie = Cookies.get('user');
                 let grade = '';
-
+    
                 if (userCookie) {
                     const userEmail = JSON.parse(userCookie).email;
                     const usersRef = collection(db, 'user');
@@ -50,14 +50,18 @@ const PlanPage: React.FC<PlanPageProps> = () => {
                         return;
                     }
                 }
+    
+                // Get the current year dynamically
+                const currentYear = new Date().getFullYear().toString();
+                const academicYear = (parseInt(currentYear) - 1).toString();
 
                 const params: ApiParams = {
                     ATPT_OFCDC_SC_CODE: "J10",
                     SD_SCHUL_CODE: "7531292",
-                    AY: "2024",
+                    AY: academicYear, // Use the current year
                     SEM: "1",
                 };
-
+    
                 const response = await axios.get("https://open.neis.go.kr/hub/SchoolSchedule", {
                     params: {
                         ...params,
@@ -65,7 +69,7 @@ const PlanPage: React.FC<PlanPageProps> = () => {
                         Type: "json"
                     },
                 });
-
+    
                 let eventData: EventData[] = response.data.SchoolSchedule[1].row;
                 const filteredEvents = eventData.filter(event => {
                     if (grade === '1' && event.ONE_GRADE_EVENT_YN === 'Y') return true;
@@ -73,7 +77,7 @@ const PlanPage: React.FC<PlanPageProps> = () => {
                     if (grade === '3' && event.THREE_GRADE_EVENT_YN === 'Y') return true;
                     return false;
                 });
-
+    
                 setEvents(filteredEvents);
                 setLoading(false);
             } catch (err) {
@@ -81,7 +85,7 @@ const PlanPage: React.FC<PlanPageProps> = () => {
                 setLoading(false);
             }
         };
-
+    
         fetchEvents();
     }, []);
 
@@ -95,7 +99,6 @@ const PlanPage: React.FC<PlanPageProps> = () => {
             <br />
             <br />
             <div>
-                <h2>학사일정</h2>
                 <ul>
                     {events.map((event, index) => (
                         <li key={index}>
